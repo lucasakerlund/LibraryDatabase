@@ -17,6 +17,7 @@
 
 -- DROP DATABASE IF EXISTS `Library_Management_System`;
 
+DROP DATABASE IF EXISTS `Library_Management_System`;
 CREATE SCHEMA IF NOT EXISTS `Library_Management_System` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 USE `Library_Management_System` ;
 
@@ -39,7 +40,6 @@ CREATE TABLE `authors` (
 
 LOCK TABLES `authors` WRITE;
 /*!40000 ALTER TABLE `authors` DISABLE KEYS */;
-INSERT INTO `authors` VALUES (1,'Igor');
 /*!40000 ALTER TABLE `authors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -58,8 +58,7 @@ CREATE TABLE `book_details` (
   `published` varchar(50) NOT NULL,
   `image_source` varchar(300) DEFAULT NULL,
   `pages` int DEFAULT NULL,
-  PRIMARY KEY (`isbn`),
-  CONSTRAINT FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`)
+  PRIMARY KEY (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -69,7 +68,6 @@ CREATE TABLE `book_details` (
 
 LOCK TABLES `book_details` WRITE;
 /*!40000 ALTER TABLE `book_details` DISABLE KEYS */;
-INSERT INTO `book_details` VALUES (1209754,'Batman','Hello','EN','2022_05_06',NULL,NULL);
 /*!40000 ALTER TABLE `book_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -110,8 +108,10 @@ DROP TABLE IF EXISTS `books`;
 CREATE TABLE `books` (
   `book_id` int NOT NULL AUTO_INCREMENT,
   `isbn` varchar(255) NOT NULL,
-  PRIMARY KEY (`book_id`),
-  FOREIGN KEY (`isbn`) references book_details (`isbn`)
+  `library_id` INT NOT NULL,
+  PRIMARY KEY (`book_id`, `isbn`),
+  FOREIGN KEY (`isbn`) references book_details (`isbn`),
+  FOREIGN KEY (`library_id`) REFERENCES libraries(`library_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -121,7 +121,6 @@ CREATE TABLE `books` (
 
 LOCK TABLES `books` WRITE;
 /*!40000 ALTER TABLE `books` DISABLE KEYS */;
-INSERT INTO `books` VALUES (1,'1892819');
 /*!40000 ALTER TABLE `books` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -136,7 +135,6 @@ CREATE TABLE `books_with_authors` (
   `isbn` VARCHAR(255) NOT NULL,
   `author_id` int NOT NULL,
   PRIMARY KEY (`isbn`,`author_id`),
-  KEY `FK_authors` (`author_id`),
    FOREIGN KEY (`author_id`) REFERENCES `authors` (`author_id`),
   FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -148,7 +146,6 @@ CREATE TABLE `books_with_authors` (
 
 LOCK TABLES `books_with_authors` WRITE;
 /*!40000 ALTER TABLE `books_with_authors` DISABLE KEYS */;
-INSERT INTO `books_with_authors` VALUES (1,1);
 /*!40000 ALTER TABLE `books_with_authors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -160,10 +157,10 @@ DROP TABLE IF EXISTS `books_with_genre`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `books_with_genre` (
-  `genre_id` int NOT NULL,
   `isbn` VARCHAR(255) NOT NULL,
+  `genre_id` int NOT NULL,
   PRIMARY KEY (`genre_id`,`isbn`),
-  FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`),
+  FOREIGN KEY (`isbn`) REFERENCES `book_details` (`isbn`),
   FOREIGN KEY (`genre_id`) REFERENCES `genre` (`genre_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -174,7 +171,6 @@ CREATE TABLE `books_with_genre` (
 
 LOCK TABLES `books_with_genre` WRITE;
 /*!40000 ALTER TABLE `books_with_genre` DISABLE KEYS */;
-INSERT INTO `books_with_genre` VALUES (1,1);
 /*!40000 ALTER TABLE `books_with_genre` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -253,7 +249,6 @@ CREATE TABLE `genre` (
 
 LOCK TABLES `genre` WRITE;
 /*!40000 ALTER TABLE `genre` DISABLE KEYS */;
-INSERT INTO `genre` VALUES (1,'Action');
 /*!40000 ALTER TABLE `genre` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -261,10 +256,10 @@ UNLOCK TABLES;
 -- Table structure for table `library`
 --
 
-DROP TABLE IF EXISTS `library`;
+DROP TABLE IF EXISTS `libraries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `library` (
+CREATE TABLE `libraries` (
   `library_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
   `adress` varchar(50) DEFAULT NULL,
@@ -277,9 +272,9 @@ CREATE TABLE `library` (
 -- Dumping data for table `library`
 --
 
-LOCK TABLES `library` WRITE;
-/*!40000 ALTER TABLE `library` DISABLE KEYS */;
-/*!40000 ALTER TABLE `library` ENABLE KEYS */;
+LOCK TABLES `libraries` WRITE;
+/*!40000 ALTER TABLE `libraries` DISABLE KEYS */;
+/*!40000 ALTER TABLE `libraries` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -323,7 +318,7 @@ CREATE TABLE `group_rooms` (
   `library_id` int NOT NULL,
   PRIMARY KEY (`room_id`),
   KEY `library_id` (`library_id`),
-  CONSTRAINT `rooms_ibfk_1` FOREIGN KEY (`library_id`) REFERENCES `librarys` (`library_id`)
+  FOREIGN KEY (`library_id`) REFERENCES `libraries` (`library_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
