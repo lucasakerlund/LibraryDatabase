@@ -2,6 +2,9 @@ DROP PROCEDURE IF EXISTS `loan_book`;
 DELIMITER //
 CREATE PROCEDURE `loan_book` (library_id INT, ISBN VARCHAR(255), customer_id INT, loan_date VARCHAR(10), return_date VARCHAR(10), OUT succeed INT)
 BEGIN
+	DECLARE `rollback` BOOL DEFAULT 0;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
+    
 	START TRANSACTION;
 		SET @bookId = "";
 		SELECT
@@ -17,10 +20,15 @@ BEGIN
 		INTO @bookId;
 		INSERT INTO loans VALUES(@bookId, customer_id, loan_date, return_date);
         SET succeed = 1;
+        IF `rollback` THEN
+			ROLLBACK;
+            SET succeed = 0;
+		END IF;
     COMMIT;
 END//
 
-CALL `loan_book`(1, "9781387207770", 1, "","", @result);
+CALL `loan_book`(2, "9781387207770", 1, "","", @result);
+SELECT @result
 
 DROP PROCEDURE IF EXISTS `get_books`;
 DELIMITER //
@@ -33,6 +41,24 @@ BEGIN
     FROM `book_details` bd
     GROUP BY bd.`isbn`;
 END //
+
+DROP PROCEDURE IF EXISTS `get_amount_of_books_in_stock`;
+DELIMITER //
+CREATE PROCEDURE `get_amount_of_books_in_stock`(isbn VARCHAR(50))
+BEGIN
+	SELECT
+    COUNT(*) AS amount
+    FROM `books` b
+    WHERE
+    b.`isbn` = isbn AND
+    NOT EXISTS(
+		SELECT *
+		FROM `loans` l
+		WHERE b.`book_id` = l.`book_id`
+    );
+END //
+
+CALL `get_amount_of_books_in_stock`("9781387207770");
 
 DROP PROCEDURE IF EXISTS `get_book_by_id`
 DELIMITER //
@@ -64,6 +90,24 @@ END //
 
 CALL available_amount_of_book_in_libraries("9781387207770");
 
+DROP PROCEDURE IF EXISTS `get_loaned_books_with_isbn`;
+DELIMITER //
+CREATE PROCEDURE `get_loaned_books_with_isbn`(isbn VARCHAR(50))
+BEGIN
+	SELECT
+    *
+    FROM `loans` l
+    WHERE
+    EXISTS(
+		SELECT *
+        FROM `books` b
+        WHERE b.`isbn` = isbn AND
+        l.`book_id` = b.`book_id`
+    );
+END //
+
+CALL get_loaned_books_with_isbn("1251253223423");
+
 DROP PROCEDURE IF EXISTS `create_customer`;
 DELIMITER //
 CREATE PROCEDURE `create_customer`(first_name VARCHAR(40), last_name VARCHAR(40), email VARCHAR(70), `password` VARCHAR(40), OUT succeed INT)
@@ -82,16 +126,19 @@ END //
 
 DROP PROCEDURE IF EXISTS `create_employee`;
 DELIMITER //
-CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), user_name VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
+CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), username VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
 BEGIN
 	START TRANSACTION;
 		SET @employee_exists = 0;
-		SELECT COUNT(*) FROM employees e WHERE e.`user_name` = user_name INTO @employee_exists;
+		SELECT COUNT(*) FROM employees e WHERE e.`username` = username INTO @employee_exists;
 		IF (@employee_exists > 0) THEN
 			SET succeed = 0;
 		ELSE
 			SET succeed = 1;
-			INSERT INTO employees (`first_name`,`last_name`,`user_name`,`password`,`role`) VALUES(first_name, last_name, user_name, `password`, `role`);
+			INSERT INTO employees (`first_name`,`last_name`,`username`,`password`,`role`) VALUES(first_name, last_name, username, `password`, `role`);
 		END IF;
     COMMIT;
 END //
+
+CALL create_employee("test", "test", "test", "123", "ADMIN", @result);
+SELECT @result;
