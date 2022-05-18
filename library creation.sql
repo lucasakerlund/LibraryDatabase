@@ -53,7 +53,7 @@ DROP TABLE IF EXISTS `book_details`;
 CREATE TABLE `book_details` (
   `isbn` VARCHAR(255),
   `title` varchar(50) NOT NULL,
-  `description` varchar(3000) NOT NULL,
+  `description` varchar(255) NOT NULL,
   `language` varchar(45) NOT NULL,
   `published` varchar(50) NOT NULL,
   `image_source` varchar(300) DEFAULT NULL,
@@ -175,6 +175,18 @@ LOCK TABLES `books_with_genre` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `book_suggestion`
+--
+
+CREATE TABLE book_suggestion(
+  `book_suggestion_id` int NOT NULL AUTO_INCREMENT,
+  `isbn` VARCHAR(255) DEFAULT NULL,
+  `title` VARCHAR(40) NOT NULL,
+  `author` VARCHAR(40) NOT NULL,
+  `language` VARCHAR(30) DEFAULT NULL,
+  PRIMARY KEY (`book_suggestion_id`));
+
+--
 -- Table structure for table `customers`
 --
 
@@ -211,12 +223,12 @@ CREATE TABLE `employees` (
   `employee_id` int NOT NULL AUTO_INCREMENT,
   `first_name` varchar(40) NOT NULL,
   `last_name` varchar(40) NOT NULL,
-  `username` varchar(70) NOT NULL,
+  `user_name` varchar(70) NOT NULL,
   `password` varchar(40) DEFAULT NULL,
   `role`     varchar(55),
   PRIMARY KEY (`employee_id`),
   UNIQUE KEY `employee_id` (`employee_id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `user_name` (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -330,6 +342,20 @@ LOCK TABLES `group_rooms` WRITE;
 /*!40000 ALTER TABLE `group_rooms` DISABLE KEYS */;
 /*!40000 ALTER TABLE `group_rooms` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `customers_with_group_rooms`
+--
+
+DROP TABLE IF EXISTS `customers_with_group_rooms`;
+CREATE TABLE `customers_with_group_rooms` (
+  `room_id` INT NOT NULL,
+  `customer_id` INT NOT NULL,
+  `time` VARCHAR(50) NOT NULL,
+  PRIMARY KEY (`room_id`,`customer_id`),
+   FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
+  FOREIGN KEY (`room_id`) REFERENCES `group_rooms` (`room_id`)
+);
 
 --
 -- Dumping events for database 'library_management_system'
