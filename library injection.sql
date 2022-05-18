@@ -16,19 +16,12 @@ INSERT INTO `books_with_authors` VALUES ("9781387207770",2);
 INSERT INTO `books_with_genre` VALUES ("9781387207770",1);
 INSERT INTO `books_with_genre` VALUES ("1251253223423",1);
 -- Stockholm bibliotek group_rooms
-INSERT INTO `group_rooms` VALUES (1, "Focus", 1);
-INSERT INTO `group_rooms` VALUES (2, "Mind", 1);
-INSERT INTO `group_rooms` VALUES (3, "Discipline", 1);
-INSERT INTO `group_rooms` VALUES (4, "Nerd", 1);
+INSERT INTO `group_rooms` VALUES (1, "Focus", 1, "08:00-11:00");
+INSERT INTO `group_rooms` VALUES (2, "Mind", 1, "09:00-13:00");
+INSERT INTO `group_rooms` VALUES (3, "Discipline", 1, "10:00-12:00");
+INSERT INTO `group_rooms` VALUES (4, "Nerd", 1, "07:00-10:00");
 -- Uppsala bibliotek group_rooms
-INSERT INTO `group_rooms` VALUES (5, "Einstein", 2);
-INSERT INTO `group_rooms` VALUES (6, "Newton", 2);
-INSERT INTO `group_rooms` VALUES (7, "Pascal", 2);
-INSERT INTO `group_rooms` VALUES (8, "Bohr", 2);
-
-INSERT INTO `customers_with_group_rooms` VALUES (1,1,1, "08:00-10:00");
-INSERT INTO `customers_with_group_rooms` VALUES (1,2,1, "13:00-15:00");
-INSERT INTO `customers_with_group_rooms` VALUES (2,2,1, "05:00-09:00");
-INSERT INTO `customers_with_group_rooms` VALUES (4,2,2, "12:00-14:00");
-INSERT INTO `customers_with_group_rooms` VALUES (3,1,2, "16:00-18:00");
-INSERT INTO `customers_with_group_rooms` VALUES (1,2,2, "11:00-14:00");
+INSERT INTO `group_rooms` VALUES (5, "Einstein", 2, "08:00-10:00");
+INSERT INTO `group_rooms` VALUES (6, "Newton", 2, "10:00-14:00");
+INSERT INTO `group_rooms` VALUES (7, "Pascal", 2, "09:00-17:00");
+INSERT INTO `group_rooms` VALUES (8, "Bohr", 2, "07:00-13:00");

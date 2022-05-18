@@ -328,6 +328,7 @@ CREATE TABLE `group_rooms` (
   `room_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
   `library_id` int NOT NULL,
+  `time` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`room_id`),
   KEY `library_id` (`library_id`),
   FOREIGN KEY (`library_id`) REFERENCES `libraries` (`library_id`)
@@ -351,8 +352,7 @@ DROP TABLE IF EXISTS `customers_with_group_rooms`;
 CREATE TABLE `customers_with_group_rooms` (
   `room_id` INT NOT NULL,
   `customer_id` INT NOT NULL,
-  `time` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`room_id`,`customer_id`),
+  PRIMARY KEY (`room_id`, `customer_id`),
    FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
   FOREIGN KEY (`room_id`) REFERENCES `group_rooms` (`room_id`)
 );

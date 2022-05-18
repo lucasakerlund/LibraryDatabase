@@ -97,13 +97,6 @@ BEGIN
     COMMIT;
 END //
 
-DROP PROCEDURE IF EXISTS `book_group_room` ;
-DELIMITER //
-CREATE PROCEDURE `book_group_room`(library_id INT, room_id INT, customer_id INT, time VARCHAR(30), OUT succeed INT)
-BEGIN
-	
-END //
-    
     
     
 
