@@ -98,5 +98,53 @@ BEGIN
 END //
 
     
-    
+    DROP PROCEDURE IF EXISTS `create_customers_with_group_rooms`;
+DELIMITER //
+CREATE PROCEDURE `create_customers_with_group_rooms`(room_id int, customer_id int,`time` varchar(50), OUT succeed INT)
+BEGIN
+	START TRANSACTION;
+		SET @customers_with_group_rooms_exists = 0;
+		SELECT COUNT(*) FROM customers_with_group_rooms c WHERE c.`customer_id`AND c.`time` = customer_id and time INTO @customers_with_group_rooms_exists;
+		IF (@customers_with_group_rooms_exists > 0) THEN
+			SET succeed = 0;
+		ELSE
+			SET succeed = 1;
+			INSERT INTO customers_with_group_rooms (`room_id`,`customer_id`,`time`) VALUES(room_id,`customer_id`,`time`);
+		END IF;
+    COMMIT;
+END //
+
+
+ DROP PROCEDURE IF EXISTS `create_group_rooms`;
+DELIMITER //
+CREATE PROCEDURE `create_group_rooms`(room_id int, name varchar(40), library_id int ,OUT succeed INT)
+BEGIN
+	START TRANSACTION;
+		SET @group_rooms_exists = 0;
+		SELECT COUNT(*) FROM group_rooms r WHERE r.`room_id` = room_id INTO @group_rooms_exists;
+		IF (@group_rooms_exists > 0) THEN
+			SET succeed = 0;
+		ELSE
+			SET succeed = 1;
+			INSERT INTO group_rooms (`room_id`,`name`,`library_id`) VALUES(room_id, name, library_id );
+		END IF;
+    COMMIT;
+END //
+
+
+DROP PROCEDURE IF EXISTS `create_group_room_times`;
+DELIMITER //
+CREATE PROCEDURE `create_group_room_times`(room_id int, time varchar(11), date VARCHAR(10) ,OUT succeed INT)
+BEGIN
+	START TRANSACTION;
+		SET @group_room_times_exists = 0;
+		SELECT COUNT(*) FROM group_room_times r WHERE r.`room_id`and `time`ANd `date` = room_id And time AND date INTO @group_rooms_exists;
+		IF (@group_room_times_exists > 0) THEN
+			SET succeed = 0;
+		ELSE
+			SET succeed = 1;
+			INSERT INTO group_room_times (`room_id`,`time`,`date`) VALUES(room_id, time, date );
+		END IF;
+    COMMIT;
+END //
 

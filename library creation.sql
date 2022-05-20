@@ -79,12 +79,12 @@ DROP TABLE IF EXISTS `book_queue`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `book_queue` (
-  `queue_date` varchar(10) DEFAULT NULL,
-  `book_id` int NOT NULL,
+  `queue_date` varchar(16) DEFAULT NULL,
+  `isbn` VARCHAR(255) NOT NULL,
   `customer_id` int NOT NULL,
-  PRIMARY KEY (`book_id`,`customer_id`),
+  PRIMARY KEY (`isbn`,`customer_id`),
   KEY `customer_id` (`customer_id`),
-  CONSTRAINT `book_queue_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
+  CONSTRAINT `book_queue_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`),
   CONSTRAINT `book_queue_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -328,7 +328,6 @@ CREATE TABLE `group_rooms` (
   `room_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
   `library_id` int NOT NULL,
-  `time` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`room_id`),
   KEY `library_id` (`library_id`),
   FOREIGN KEY (`library_id`) REFERENCES `libraries` (`library_id`)
@@ -345,16 +344,36 @@ LOCK TABLES `group_rooms` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `group_room_times`
+--
+
+  Drop table if exists `group_room_times`;
+  /*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+
+  CREATE TABLE `group_room_times`(
+    `time_id` INT NOT NULL  AUTO_INCREMENT,
+    `room_id` INT NOT NULL,
+      `time` VARCHAR(11) not null,
+      `date` VARCHAR(10) NOT NULL,
+      PRIMARY KEY (`time_id`),
+      FOREIGN KEY (`room_id`) REFERENCES `group_rooms` (`room_id`)
+  )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+ 
+
+--
 -- Table structure for table `customers_with_group_rooms`
 --
 
 DROP TABLE IF EXISTS `customers_with_group_rooms`;
 CREATE TABLE `customers_with_group_rooms` (
-  `room_id` INT NOT NULL,
+  `time_id` INT NOT NULL,
   `customer_id` INT NOT NULL,
-  PRIMARY KEY (`room_id`, `customer_id`),
+  PRIMARY KEY (`customer_id`, `time_id`),
    FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`),
-  FOREIGN KEY (`room_id`) REFERENCES `group_rooms` (`room_id`)
+   FOREIGN KEY (`time_id`) REFERENCES `group_room_times` (`time_id`)
 );
 
 --
