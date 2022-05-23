@@ -178,7 +178,8 @@ UNLOCK TABLES;
 -- Table structure for table `book_suggestion`
 --
 
-CREATE TABLE IF EXISTS book_suggestion(
+DROP TABLE IF EXISTS book_suggestion;
+CREATE TABLE book_suggestion(
   `book_suggestion_id` int NOT NULL AUTO_INCREMENT,
   `isbn` VARCHAR(255) DEFAULT NULL,
   `title` VARCHAR(40) NOT NULL,
