@@ -329,6 +329,7 @@ CREATE TABLE `group_rooms` (
   `room_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
   `library_id` int NOT NULL,
+  `description` VARCHAR(1000),
   PRIMARY KEY (`room_id`),
   KEY `library_id` (`library_id`),
   FOREIGN KEY (`library_id`) REFERENCES `libraries` (`library_id`)
@@ -393,5 +394,3 @@ CREATE TABLE `customers_with_group_rooms` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2022-05-06 12:18:14

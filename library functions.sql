@@ -218,6 +218,9 @@ DROP PROCEDURE IF EXISTS `get_available_group_rooms`;
 DELIMITER //
 CREATE PROCEDURE `get_available_group_rooms`()
 BEGIN
+SELECT * FROM group_rooms;
+/*
+BEGIN
 	SELECT
     gr.`name` AS Room, (grt.`time`) AS Time, (grt.`date`) AS Date,
 	l.`name` AS Library
@@ -226,5 +229,6 @@ INNER
   JOIN `group_rooms` gr
     ON grt.`room_id` = gr.`room_id` AND gr.`library_id` = l.`library_id`
 ORDER BY Date;
-END //
 
+*/
+END //
