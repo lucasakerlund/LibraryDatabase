@@ -27,6 +27,7 @@ INSERT INTO `group_room_times` (room_id, time, date) VALUES (1, '10:00-12:00', '
 INSERT INTO `group_room_times` (room_id, time, date) VALUES (1, '12:00-14:00', '2022-05-24');
 INSERT INTO `group_room_times` (room_id, time, date) VALUES (1, '14:00-16:00', '2022-05-24');
 INSERT INTO `group_room_times` (room_id, time, date) VALUES (1, '16:00-18:00', '2022-05-24');
+INSERT INTO `group_room_times` (room_id, time, date) VALUES (2, '16:00-18:00', '2022-05-24');
 
 -- Uppsala bibliotek group_rooms
 INSERT INTO `group_rooms` VALUES (5, "Einstein", 2, "Ett sketet rum");

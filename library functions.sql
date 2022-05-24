@@ -226,7 +226,22 @@ INNER
     ON gr.`room_id` = grt.`room_id` AND cwgr.`time_id` = grt.`time_id`;
 END //
 
+DROP PROCEDURE IF EXISTS `get_available_group_room_times_by_room_id`;
+DELIMITER //
+CREATE PROCEDURE `get_available_group_room_times_by_room_id`(room_id INT)
+BEGIN
+	SELECT *
+    FROM `group_room_times` g
+    WHERE
+    g.`room_id` = room_id AND
+    NOT EXISTS(
+		SELECT *
+        FROM `customers_with_group_rooms` c
+        WHERE g.`time_id` = c.`time_id`
+    );
+END //
 
+CALL get_available_group_room_times_by_room_id();
 
 DROP PROCEDURE IF EXISTS `get_available_group_rooms`;
 DELIMITER //
