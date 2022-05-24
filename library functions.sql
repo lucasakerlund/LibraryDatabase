@@ -61,6 +61,20 @@ END //
 
 CALL `get_amount_of_books_in_stock`("9781387207770");
 
+DROP PROCEDURE IF EXISTS `get_book_by_isbn`
+DELIMITER //
+CREATE PROCEDURE `get_book_by_isbn`(isbn VARCHAR(30))
+BEGIN
+	SELECT
+    bd.*,
+    (SELECT GROUP_CONCAT(`name`) FROM `books_with_authors` ba, `authors` a WHERE bd.`isbn` = ba.`isbn` AND ba.`author_id` = a.`author_id`) AS authors,
+    (SELECT GROUP_CONCAT(`name`) FROM `books_with_genre` bg, `genre` g WHERE bd.`isbn` = bg.`isbn` AND bg.`genre_id` = g.`genre_id`) AS genres,
+    (SELECT GROUP_CONCAT(DISTINCT l.`name`) FROM `libraries` l, `books` b WHERE bd.`isbn` = b.`isbn` AND b.`library_id` = l.`library_id` AND NOT EXISTS(SELECT * FROM `loans` l WHERE b.`book_id` = l.`book_id`)) AS available_libraries
+    FROM `book_details` bd WHERE bd.`isbn` = isbn;
+END //
+
+CALL get_book_by_isbn(9781387207770);
+
 DROP PROCEDURE IF EXISTS `get_book_by_id`
 DELIMITER //
 CREATE PROCEDURE `get_book_by_id`(bookId INT)
@@ -229,6 +243,5 @@ INNER
   JOIN `group_rooms` gr
     ON grt.`room_id` = gr.`room_id` AND gr.`library_id` = l.`library_id`
 ORDER BY Date;
-
 */
 END //
