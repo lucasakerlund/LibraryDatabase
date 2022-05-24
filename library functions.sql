@@ -226,9 +226,9 @@ INNER
     ON gr.`room_id` = grt.`room_id` AND cwgr.`time_id` = grt.`time_id`;
 END //
 
-DROP PROCEDURE IF EXISTS `get_available_group_room_times_by_room_id`;
+DROP PROCEDURE IF EXISTS `get_available_group_room_times`;
 DELIMITER //
-CREATE PROCEDURE `get_available_group_room_times_by_room_id`(room_id INT)
+CREATE PROCEDURE `get_available_group_room_times`(room_id INT)
 BEGIN
 	SELECT *
     FROM `group_room_times` g
