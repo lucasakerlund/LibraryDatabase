@@ -260,3 +260,17 @@ INNER
 ORDER BY Date;
 */
 END //
+
+USE `library_management_system`;
+DROP procedure IF EXISTS `get_customer_room_bookings`;
+
+DELIMITER $$
+USE `library_management_system`$$
+CREATE PROCEDURE `get_customer_room_bookings` (customer_id_frontend INT)
+BEGIN
+
+SELECT c.customer_id, g.*, r.name FROM customers_with_group_rooms c, group_room_times g, group_rooms r WHERE c.customer_id = customer_id_frontend AND g.time_id = c.time_id AND r.room_id = g.room_id;
+    
+END$$
+
+DELIMITER ;
