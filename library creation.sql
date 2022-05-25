@@ -109,7 +109,7 @@ CREATE TABLE `books` (
   `book_id` int NOT NULL AUTO_INCREMENT,
   `isbn` varchar(255) NOT NULL,
   `library_id` INT NOT NULL,
-  PRIMARY KEY (`book_id`, `isbn`),
+  PRIMARY KEY (`book_id`),
   FOREIGN KEY (`isbn`) references book_details (`isbn`),
   FOREIGN KEY (`library_id`) REFERENCES libraries(`library_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
