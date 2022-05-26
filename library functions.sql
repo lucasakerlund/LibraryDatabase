@@ -141,16 +141,16 @@ END //
 
 DROP PROCEDURE IF EXISTS `create_employee`;
 DELIMITER //
-CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), user_name VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
+CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), username VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
 BEGIN
 	START TRANSACTION;
 		SET @employee_exists = 0;
-		SELECT COUNT(*) FROM employees e WHERE e.`user_name` = user_name INTO @employee_exists;
+		SELECT COUNT(*) FROM employees e WHERE e.`username` = username INTO @employee_exists;
 		IF (@employee_exists > 0) THEN
 			SET succeed = 0;
 		ELSE
 			SET succeed = 1;
-			INSERT INTO employees (`first_name`,`last_name`,`user_name`,`password`,`role`) VALUES(first_name, last_name, user_name, `password`, `role`);
+			INSERT INTO employees (`first_name`,`last_name`,`username`,`password`,`role`) VALUES(first_name, last_name, username, `password`, `role`);
 		END IF;
     COMMIT;
 END //
@@ -261,16 +261,17 @@ ORDER BY Date;
 */
 END //
 
-USE `library_management_system`;
 DROP procedure IF EXISTS `get_customer_room_bookings`;
-
 DELIMITER $$
-USE `library_management_system`$$
 CREATE PROCEDURE `get_customer_room_bookings` (customer_id_frontend INT)
 BEGIN
 
-SELECT c.customer_id, g.*, r.name FROM customers_with_group_rooms c, group_room_times g, group_rooms r WHERE c.customer_id = customer_id_frontend AND g.time_id = c.time_id AND r.room_id = g.room_id;
+SELECT c.customer_id, g.*, r.name
+FROM customers_with_group_rooms c, group_room_times g, group_rooms r
+WHERE c.customer_id = customer_id_frontend AND
+g.time_id = c.time_id AND
+r.room_id = g.room_id;
     
 END$$
 
-DELIMITER ;
+CALL get_customer_room_bookings(1);
