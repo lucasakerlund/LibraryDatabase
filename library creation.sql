@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS `authors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `authors` (
-  `author_id` int NOT NULL AUTO_INCREMENT,
+  `author_id` INT NOT NULL AUTO_INCREMENT,
   `name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`author_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -53,10 +53,10 @@ DROP TABLE IF EXISTS `book_details`;
 CREATE TABLE `book_details` (
   `isbn` VARCHAR(255),
   `title` varchar(50) NOT NULL,
-  `description` varchar(255) NOT NULL,
+  `description` varchar(3000) NOT NULL,
   `language` varchar(45) NOT NULL,
   `published` varchar(50) NOT NULL,
-  `image_source` varchar(300) DEFAULT NULL,
+  `image_source` varchar(500) DEFAULT NULL,
   `pages` int DEFAULT NULL,
   PRIMARY KEY (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -133,7 +133,7 @@ DROP TABLE IF EXISTS `books_with_authors`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `books_with_authors` (
   `isbn` VARCHAR(255) NOT NULL,
-  `author_id` int NOT NULL,
+  `author_id` INT NOT NULL,
   PRIMARY KEY (`isbn`,`author_id`),
    FOREIGN KEY (`author_id`) REFERENCES `authors` (`author_id`),
   FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`)

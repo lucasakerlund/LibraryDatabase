@@ -43,6 +43,55 @@ BEGIN
     GROUP BY bd.`isbn`;
 END //
 
+DROP PROCEDURE IF EXISTS `add_book`;
+DELIMITER //
+CREATE PROCEDURE `add_book`(title VARCHAR(50), description VARCHAR(3000), authors VARCHAR(200), genres VARCHAR(200), isbn VARCHAR(20), published VARCHAR(10), page_count INT, language VARCHAR(50), image VARCHAR(500), OUT succeed INT)
+BEGIN
+	DECLARE `rollback` BOOL DEFAULT 0;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
+
+	START TRANSACTION;
+		SET FOREIGN_KEY_CHECKS=0;
+		INSERT INTO book_details VALUES(isbn, title, description, language, published, image, pages);
+		-- authors
+		SET @total_authors = LENGTH(authors) - LENGTH(REPLACE(authors, ",", ""))+1;
+		SET @currentCount = 1;
+		
+		WHILE @currentCount <= @total_authors DO
+			
+			SET @author = SUBSTRING_INDEX(SUBSTRING_INDEX(authors, ',', @currentCount), ',', -1);
+			SELECT `name` FROM `authors` WHERE `name` = @author INTO @exists;
+			IF(@exists IS NULL) THEN
+				INSERT INTO `authors`(`name`) VALUES(@author);
+                SET @author_id = last_insert_id();
+                INSERT INTO `books_with_authors` VALUES ("1",1);
+			END IF;
+			SET @currentCount = @currentCount + 1;
+		END WHILE;
+		-- genres
+		SET @total_genres = LENGTH(genres) - LENGTH(REPLACE(genres, ",", ""))+1;
+		SET @currentCount = 1;
+		
+		WHILE @currentCount <= @total_genres DO 
+			
+			SET @genre = SUBSTRING_INDEX(SUBSTRING_INDEX(genres, ',', @currentCount), ',', -1);
+			SELECT name FROM genre WHERE name = @genre INTO @exists;
+			IF(@exists IS NULL) THEN
+				INSERT INTO genre(name) VALUES(@genre);
+                SET @genre_id = last_insert_id();
+                INSERT INTO books_with_genre VALUES(isbn, @genre_id);
+			END IF;
+			SET @currentCount = @currentCount + 1;
+		END WHILE;
+        SET succeed = 1;
+        IF `rollback` THEN
+			ROLLBACK;
+            SET succeed = 0;
+		END IF;
+        SET FOREIGN_KEY_CHECKS=1;
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS `get_amount_of_books_in_stock`;
 DELIMITER //
 CREATE PROCEDURE `get_amount_of_books_in_stock`(isbn VARCHAR(50))
