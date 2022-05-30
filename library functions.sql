@@ -92,6 +92,27 @@ BEGIN
     COMMIT;
 END //
 
+DROP PROCEDURE IF EXISTS `add_copies`;
+DELIMITER //
+CREATE PROCEDURE `add_copies`(isbn VARCHAR(20), library_id INT, amount INT, OUT succeed INT)
+BEGIN
+	DECLARE `rollback` BOOL DEFAULT 0;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
+    
+	START TRANSACTION;
+		SET @start = 0;
+		WHILE @start < amount DO
+			INSERT INTO `books`(`isbn`, `library_id`) VALUES(isbn, library_id);
+			SET @start = @start + 1;
+		END WHILE;
+        SET succeed = 1;
+        IF `rollback` THEN
+			ROLLBACK;
+            SET succeed = 0;
+		END IF;
+    COMMIT;
+END //
+
 DROP PROCEDURE IF EXISTS `get_amount_of_books_in_stock`;
 DELIMITER //
 CREATE PROCEDURE `get_amount_of_books_in_stock`(isbn VARCHAR(50))
@@ -153,6 +174,18 @@ BEGIN
 END //
 
 CALL available_amount_of_book_in_libraries("9781387207770");
+
+DROP PROCEDURE IF EXISTS `get_copies_in_library`;
+DELIMITER //
+CREATE PROCEDURE `get_copies_in_library`(library_id INT, isbn VARCHAR(20))
+BEGIN
+	SELECT *, (NOT EXISTS(SELECT * FROM `loans` l WHERE l.`book_id` = b.`book_id`) = 1) AS available
+    FROM `books` b
+    WHERE b.`library_id` = library_id AND
+    b.`isbn` = isbn;
+END //
+
+CALL `get_copies_in_library`(1, "0132350882");
 
 DROP PROCEDURE IF EXISTS `get_loaned_books_with_isbn`;
 DELIMITER //
