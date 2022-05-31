@@ -19,6 +19,7 @@ BEGIN
 			  WHERE b.`book_id` = l.`book_id`) LIMIT 1
 		INTO @bookId;
 		INSERT INTO loans VALUES(@bookId, customer_id, loan_date, return_date);
+        INSERT INTO `loans_history`(`book_id`, `customer_id`, `loan_date`, `return_date`) VALUES(@bookId, customer_id, loan_date, return_date);
         SET succeed = 1;
         IF `rollback` THEN
 			ROLLBACK;
@@ -38,10 +39,16 @@ BEGIN
     bd.*,
     (SELECT GROUP_CONCAT(`name`) FROM `books_with_authors` ba, `authors` a WHERE bd.`isbn` = ba.`isbn` AND ba.`author_id` = a.`author_id`) AS authors,
     (SELECT GROUP_CONCAT(`name`) FROM `books_with_genre` bg, `genre` g WHERE bd.`isbn` = bg.`isbn` AND bg.`genre_id` = g.`genre_id`) AS genres,
-    (SELECT GROUP_CONCAT(DISTINCT l.`name`) FROM `libraries` l, `books` b WHERE bd.`isbn` = b.`isbn` AND b.`library_id` = l.`library_id` AND NOT EXISTS(SELECT * FROM `loans` l WHERE b.`book_id` = l.`book_id`)) AS available_libraries
+    (SELECT GROUP_CONCAT(DISTINCT l.`name`) FROM `libraries` l, `books` b WHERE bd.`isbn` = b.`isbn` AND b.`library_id` = l.`library_id` AND NOT EXISTS(SELECT * FROM `loans` l WHERE b.`book_id` = l.`book_id`)) AS available_libraries,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn`) AS popular_all_time,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn` AND l.`loan_date` > DATE_SUB(CURDATE(), INTERVAL 1 YEAR)) AS popular_year,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn` AND l.`loan_date` > DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AS popular_month,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn` AND l.`loan_date` > DATE_SUB(CURDATE(), INTERVAL 1 WEEK)) AS popular_week
     FROM `book_details` bd
     GROUP BY bd.`isbn`;
 END //
+
+CALL `get_books`();
 
 DROP PROCEDURE IF EXISTS `add_book`;
 DELIMITER //
