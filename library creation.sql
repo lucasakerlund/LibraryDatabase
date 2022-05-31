@@ -224,12 +224,12 @@ CREATE TABLE `employees` (
   `employee_id` int NOT NULL AUTO_INCREMENT,
   `first_name` varchar(40) NOT NULL,
   `last_name` varchar(40) NOT NULL,
-  `username` varchar(70) NOT NULL,
+  `email` varchar(70) NOT NULL,
   `password` varchar(40) DEFAULT NULL,
   `role`     varchar(55),
   PRIMARY KEY (`employee_id`),
   UNIQUE KEY `employee_id` (`employee_id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
