@@ -71,7 +71,7 @@ BEGIN
 			IF(@exists IS NULL) THEN
 				INSERT INTO `authors`(`name`) VALUES(@author);
                 SET @author_id = last_insert_id();
-                INSERT INTO `books_with_authors` VALUES ("1",1);
+                INSERT INTO `books_with_authors` VALUES (isbn, @author_id);
 			END IF;
 			SET @currentCount = @currentCount + 1;
 		END WHILE;
@@ -230,16 +230,16 @@ END //
 
 DROP PROCEDURE IF EXISTS `create_employee`;
 DELIMITER //
-CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), username VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
+CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), email VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
 BEGIN
 	START TRANSACTION;
 		SET @employee_exists = 0;
-		SELECT COUNT(*) FROM employees e WHERE e.`username` = username INTO @employee_exists;
+		SELECT COUNT(*) FROM employees e WHERE e.`email` = email INTO @employee_exists;
 		IF (@employee_exists > 0) THEN
 			SET succeed = 0;
 		ELSE
 			SET succeed = 1;
-			INSERT INTO employees (`first_name`,`last_name`,`username`,`password`,`role`) VALUES(first_name, last_name, username, `password`, `role`);
+			INSERT INTO employees (`first_name`,`last_name`,`email`,`password`,`role`) VALUES(first_name, last_name, email, `password`, `role`);
 		END IF;
     COMMIT;
 END //
