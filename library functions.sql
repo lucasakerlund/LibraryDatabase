@@ -52,14 +52,14 @@ CALL `get_books`();
 
 DROP PROCEDURE IF EXISTS `add_book`;
 DELIMITER //
-CREATE PROCEDURE `add_book`(title VARCHAR(50), description VARCHAR(3000), authors VARCHAR(200), genres VARCHAR(200), isbn VARCHAR(20), published VARCHAR(10), page_count INT, language VARCHAR(50), image VARCHAR(500), OUT succeed INT)
+CREATE PROCEDURE `add_book`(title VARCHAR(50), description VARCHAR(3000), authors VARCHAR(200), genres VARCHAR(200), isbn VARCHAR(20), published VARCHAR(10), page_count INT, language VARCHAR(50), image_source VARCHAR(500), OUT succeed INT)
 BEGIN
 	DECLARE `rollback` BOOL DEFAULT 0;
 	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
 
 	START TRANSACTION;
 		SET FOREIGN_KEY_CHECKS=0;
-		INSERT INTO book_details VALUES(isbn, title, description, language, published, image, pages);
+		INSERT INTO book_details VALUES(isbn, title, description, language, published, image_source, pages);
 		-- authors
 		SET @total_authors = LENGTH(authors) - LENGTH(REPLACE(authors, ",", ""))+1;
 		SET @currentCount = 1;

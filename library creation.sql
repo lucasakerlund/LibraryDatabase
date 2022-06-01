@@ -136,7 +136,7 @@ CREATE TABLE `books_with_authors` (
   `author_id` INT NOT NULL,
   PRIMARY KEY (`isbn`,`author_id`),
    FOREIGN KEY (`author_id`) REFERENCES `authors` (`author_id`),
-  FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`)
+  FOREIGN KEY (`isbn`) REFERENCES `book_details` (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
