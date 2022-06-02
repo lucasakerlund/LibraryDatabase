@@ -192,14 +192,14 @@ CREATE TABLE book_suggestion(
 --
 
 DROP TABLE IF EXISTS `customers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `customers` (
   `customer_id` int NOT NULL AUTO_INCREMENT,
   `first_name` varchar(40) DEFAULT NULL,
   `last_name` varchar(40) DEFAULT NULL,
   `email` varchar(70) unique NOT NULL,
-  `password` varchar(40) DEFAULT NULL,
+  `password` varchar(300) DEFAULT NULL,
+  `salt`VARCHAR(20) DEFAULT NULL,
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -213,6 +213,7 @@ LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
 --
 -- Table structure for table `employees`
 --
@@ -224,12 +225,13 @@ CREATE TABLE `employees` (
   `employee_id` int NOT NULL AUTO_INCREMENT,
   `first_name` varchar(40) NOT NULL,
   `last_name` varchar(40) NOT NULL,
-  `user_name` varchar(70) NOT NULL,
-  `password` varchar(40) DEFAULT NULL,
-  `role`     varchar(55),
+  `email` varchar(70) NOT NULL,
+  `password` varchar(300) DEFAULT NULL,
+   `salt`VARCHAR(20) DEFAULT NULL,
+  `role` varchar(55),
   PRIMARY KEY (`employee_id`),
   UNIQUE KEY `employee_id` (`employee_id`),
-  UNIQUE KEY `user_name` (`user_name`)
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
