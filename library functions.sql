@@ -19,6 +19,7 @@ BEGIN
 			  WHERE b.`book_id` = l.`book_id`) LIMIT 1
 		INTO @bookId;
 		INSERT INTO loans VALUES(@bookId, customer_id, loan_date, return_date);
+        INSERT INTO `loans_history`(`book_id`, `customer_id`, `loan_date`, `return_date`) VALUES(@bookId, customer_id, loan_date, return_date);
         SET succeed = 1;
         IF `rollback` THEN
 			ROLLBACK;
@@ -38,9 +39,85 @@ BEGIN
     bd.*,
     (SELECT GROUP_CONCAT(`name`) FROM `books_with_authors` ba, `authors` a WHERE bd.`isbn` = ba.`isbn` AND ba.`author_id` = a.`author_id`) AS authors,
     (SELECT GROUP_CONCAT(`name`) FROM `books_with_genre` bg, `genre` g WHERE bd.`isbn` = bg.`isbn` AND bg.`genre_id` = g.`genre_id`) AS genres,
-    (SELECT GROUP_CONCAT(DISTINCT l.`name`) FROM `libraries` l, `books` b WHERE bd.`isbn` = b.`isbn` AND b.`library_id` = l.`library_id` AND NOT EXISTS(SELECT * FROM `loans` l WHERE b.`book_id` = l.`book_id`)) AS available_libraries
+    (SELECT GROUP_CONCAT(DISTINCT l.`name`) FROM `libraries` l, `books` b WHERE bd.`isbn` = b.`isbn` AND b.`library_id` = l.`library_id` AND NOT EXISTS(SELECT * FROM `loans` l WHERE b.`book_id` = l.`book_id`)) AS available_libraries,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn`) AS popular_all_time,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn` AND l.`loan_date` > DATE_SUB(CURDATE(), INTERVAL 1 YEAR)) AS popular_year,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn` AND l.`loan_date` > DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) AS popular_month,
+    (SELECT COUNT(*) FROM `loans_history` l, `books` b WHERE l.`book_id` = b.`book_id` AND b.`isbn` = bd.`isbn` AND l.`loan_date` > DATE_SUB(CURDATE(), INTERVAL 1 WEEK)) AS popular_week
     FROM `book_details` bd
     GROUP BY bd.`isbn`;
+END //
+
+CALL `get_books`();
+
+DROP PROCEDURE IF EXISTS `add_book`;
+DELIMITER //
+CREATE PROCEDURE `add_book`(title VARCHAR(50), description VARCHAR(3000), authors VARCHAR(200), genres VARCHAR(200), isbn VARCHAR(20), published VARCHAR(10), page_count INT, language VARCHAR(50), image_source VARCHAR(500), OUT succeed INT)
+BEGIN
+	DECLARE `rollback` BOOL DEFAULT 0;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
+
+	START TRANSACTION;
+		SET FOREIGN_KEY_CHECKS=0;
+		INSERT INTO book_details VALUES(isbn, title, description, language, published, image_source, pages);
+		-- authors
+		SET @total_authors = LENGTH(authors) - LENGTH(REPLACE(authors, ",", ""))+1;
+		SET @currentCount = 1;
+
+		WHILE @currentCount <= @total_authors DO
+
+			SET @author = SUBSTRING_INDEX(SUBSTRING_INDEX(authors, ',', @currentCount), ',', -1);
+			SELECT `name` FROM `authors` WHERE `name` = @author INTO @exists;
+			IF(@exists IS NULL) THEN
+				INSERT INTO `authors`(`name`) VALUES(@author);
+                SET @author_id = last_insert_id();
+                INSERT INTO `books_with_authors` VALUES (isbn, @author_id);
+			END IF;
+			SET @currentCount = @currentCount + 1;
+		END WHILE;
+		-- genres
+		SET @total_genres = LENGTH(genres) - LENGTH(REPLACE(genres, ",", ""))+1;
+		SET @currentCount = 1;
+
+		WHILE @currentCount <= @total_genres DO
+
+			SET @genre = SUBSTRING_INDEX(SUBSTRING_INDEX(genres, ',', @currentCount), ',', -1);
+			SELECT name FROM genre WHERE name = @genre INTO @exists;
+			IF(@exists IS NULL) THEN
+				INSERT INTO genre(name) VALUES(@genre);
+                SET @genre_id = last_insert_id();
+                INSERT INTO books_with_genre VALUES(isbn, @genre_id);
+			END IF;
+			SET @currentCount = @currentCount + 1;
+		END WHILE;
+        SET succeed = 1;
+        IF `rollback` THEN
+			ROLLBACK;
+            SET succeed = 0;
+		END IF;
+        SET FOREIGN_KEY_CHECKS=1;
+    COMMIT;
+END //
+
+DROP PROCEDURE IF EXISTS `add_copies`;
+DELIMITER //
+CREATE PROCEDURE `add_copies`(isbn VARCHAR(20), library_id INT, amount INT, OUT succeed INT)
+BEGIN
+	DECLARE `rollback` BOOL DEFAULT 0;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
+
+	START TRANSACTION;
+		SET @start = 0;
+		WHILE @start < amount DO
+			INSERT INTO `books`(`isbn`, `library_id`) VALUES(isbn, library_id);
+			SET @start = @start + 1;
+		END WHILE;
+        SET succeed = 1;
+        IF `rollback` THEN
+			ROLLBACK;
+            SET succeed = 0;
+		END IF;
+    COMMIT;
 END //
 
 DROP PROCEDURE IF EXISTS `get_amount_of_books_in_stock`;
@@ -104,6 +181,18 @@ BEGIN
 END //
 
 CALL available_amount_of_book_in_libraries("9781387207770");
+
+DROP PROCEDURE IF EXISTS `get_copies_in_library`;
+DELIMITER //
+CREATE PROCEDURE `get_copies_in_library`(library_id INT, isbn VARCHAR(20))
+BEGIN
+	SELECT *, (NOT EXISTS(SELECT * FROM `loans` l WHERE l.`book_id` = b.`book_id`) = 1) AS available
+    FROM `books` b
+    WHERE b.`library_id` = library_id AND
+    b.`isbn` = isbn;
+END //
+
+CALL `get_copies_in_library`(1, "0132350882");
 
 DROP PROCEDURE IF EXISTS `get_loaned_books_with_isbn`;
 DELIMITER //
@@ -171,12 +260,23 @@ END IF;
 
 END //
 
--- produces for employee
-DROP PROCEDURE IF EXISTS`create_employee`;
+DROP PROCEDURE IF EXISTS `create_employee`;
 DELIMITER //
+CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), email VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
 
 CREATE DEFINER=root@localhost PROCEDURE create_employee(in first_name VARCHAR(40), in last_name VARCHAR(40), in username VARCHAR(70), in password VARCHAR(300), in role VARCHAR (55), out succeed int)
 BEGIN
+	START TRANSACTION;
+		SET @employee_exists = 0;
+		SELECT COUNT(*) FROM employees e WHERE e.`email` = email INTO @employee_exists;
+		IF (@employee_exists > 0) THEN
+			SET succeed = 0;
+		ELSE
+			SET succeed = 1;
+			INSERT INTO employees (`first_name`,`last_name`,`email`,`password`,`role`) VALUES(first_name, last_name, email, `password`, `role`);
+		END IF;
+    COMMIT;
+END //
 
 DECLARE employee_exists VARCHAR(70) DEFAULT (SELECT email FROM employees WHERE email = username);
 
@@ -218,7 +318,7 @@ ELSE
 SET succeed = 0;
 END IF;
 
-END // 
+END //
 
 
     --  group_rooms
@@ -335,7 +435,11 @@ USE `library_management_system`$$
 CREATE PROCEDURE `get_customer_room_bookings` (customer_id_frontend INT)
 BEGIN
 
-SELECT c.customer_id, g.*, r.name FROM customers_with_group_rooms c, group_room_times g, group_rooms r WHERE c.customer_id = customer_id_frontend AND g.time_id = c.time_id AND r.room_id = g.room_id;
+SELECT c.customer_id, g.*, r.name
+FROM customers_with_group_rooms c, group_room_times g, group_rooms r
+WHERE c.customer_id = customer_id_frontend AND
+g.time_id = c.time_id AND
+r.room_id = g.room_id;
     
 END$$
 
@@ -351,3 +455,5 @@ Select * from loans where str_to_date(return_date,'%Y-%m-%d') between str_to_dat
 
 
 
+
+CALL get_customer_room_bookings(1);
