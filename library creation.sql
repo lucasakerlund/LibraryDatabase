@@ -275,7 +275,7 @@ DROP TABLE IF EXISTS `libraries`;
 CREATE TABLE `libraries` (
   `library_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(40) DEFAULT NULL,
-  `adress` varchar(50) DEFAULT NULL,
+  `address` varchar(50) DEFAULT NULL,
   `county` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`library_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
