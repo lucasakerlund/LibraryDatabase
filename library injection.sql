@@ -20,7 +20,6 @@ INSERT INTO `authors` VALUES (2,'Asdwas');
 INSERT INTO `genre` VALUES (1,'Action');
 INSERT INTO `genre` VALUES (2,'Comedy');
 INSERT INTO `genre` VALUES (3,'Scifi');
-INSERT INTO `customers` VALUES(1, "Test", "test", "test", "123");
 INSERT INTO `book_details` VALUES ("9781387207770",'Batman','Hello','EN','2022-05-06',"http://books.google.com/books/content?id=lN_QDQAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",200);
 INSERT INTO `book_details` VALUES ("1251253223423",'Tjenare','Hello','EN','2022-05-06',"http://books.google.com/books/content?id=-dCApIOKqa8C&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",200);
 INSERT INTO `book_details` VALUES ("4324152352335",'Hejsan','Hello','EN','2022-05-06',"http://books.google.com/books/content?id=t12AuG0q144C&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",200);
@@ -57,7 +56,7 @@ INSERT INTO `customers` VALUES(4, "Jullis", "sharmuto", "julius.thomsen99@gmail.
 INSERT INTO `customers` VALUES(10, "Patrik", "Patrik", "Patrikjo95@gmail.com", "120965aadd");
 INSERT INTO `customers` VALUES(8, "Ruun", "Bile", "sahra.bile@edu.newton.se", "120965aa");
 -- loans for customer
-INSERT INTO `loans` VALUES (1, 1, "2022-05-30", "2022-05-31");
+INSERT INTO `loans` VALUES (1, 1, "2022-05-30", "2022-06-04");
 INSERT INTO `loans` VALUES (1, 10, "2022-05-30", "2022-06-02");
 INSERT INTO `loans` VALUES (1, 4, "2022-05-30", "2022-06-02");
 INSERT INTO `loans` VALUES (1, 1, "2022-05-30", "2022-05-31");

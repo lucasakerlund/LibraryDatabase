@@ -448,12 +448,5 @@ DELIMITER ;
 Select * from loans where str_to_date(return_date,'%Y-%m-%d') between str_to_date('2022-5-02','%Y-%m-%d') and str_to_date('2022-6-02','%Y-%m-%d');
 
 
-
-
-
-
-
-
-
-
 CALL get_customer_room_bookings(1);
+
