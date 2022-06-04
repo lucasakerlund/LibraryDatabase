@@ -259,24 +259,11 @@ SET succeed = 0;
 END IF;
 
 END //
-
 DROP PROCEDURE IF EXISTS `create_employee`;
 DELIMITER //
-CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), email VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
 
-CREATE DEFINER=root@localhost PROCEDURE create_employee(in first_name VARCHAR(40), in last_name VARCHAR(40), in username VARCHAR(70), in password VARCHAR(300), in role VARCHAR (55), out succeed int)
+CREATE DEFINER=root@localhost PROCEDURE create_employee(in first_name VARCHAR(40), in last_name VARCHAR(40), in username VARCHAR(70), in password VARCHAR(300), role VARCHAR(55), out succeed int)
 BEGIN
-	START TRANSACTION;
-		SET @employee_exists = 0;
-		SELECT COUNT(*) FROM employees e WHERE e.`email` = email INTO @employee_exists;
-		IF (@employee_exists > 0) THEN
-			SET succeed = 0;
-		ELSE
-			SET succeed = 1;
-			INSERT INTO employees (`first_name`,`last_name`,`email`,`password`,`role`) VALUES(first_name, last_name, email, `password`, `role`);
-		END IF;
-    COMMIT;
-END //
 
 DECLARE employee_exists VARCHAR(70) DEFAULT (SELECT email FROM employees WHERE email = username);
 
@@ -284,7 +271,7 @@ SET @salt=SUBSTRING(MD5(RAND()), -10);
 
 IF employee_exists IS NULL THEN
 
-INSERT INTO employees (first_name, last_name, email, password, salt, role) VALUES (first_name, last_name, username, concat(sha2(password, 224), @salt), @salt,role);
+INSERT INTO employees (first_name, last_name, email, password, salt,role) VALUES (first_name, last_name, username, concat(sha2(password, 224), @salt), @salt,role);
 
 SET succeed = 1;
 
@@ -293,6 +280,7 @@ SET succeed = 0;
 END IF;
 
 END //
+
 
 DROP PROCEDURE IF EXISTS `employee_authenticator`;
 DELIMITER //
