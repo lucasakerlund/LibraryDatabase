@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS `authors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `authors` (
-  `author_id` INT NOT NULL AUTO_INCREMENT,
+  `author_id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`author_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -53,10 +53,10 @@ DROP TABLE IF EXISTS `book_details`;
 CREATE TABLE `book_details` (
   `isbn` VARCHAR(255),
   `title` varchar(50) NOT NULL,
-  `description` varchar(3000) NOT NULL,
+  `description` varchar(255) NOT NULL,
   `language` varchar(45) NOT NULL,
   `published` varchar(50) NOT NULL,
-  `image_source` varchar(500) DEFAULT NULL,
+  `image_source` varchar(300) DEFAULT NULL,
   `pages` int DEFAULT NULL,
   PRIMARY KEY (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -133,10 +133,10 @@ DROP TABLE IF EXISTS `books_with_authors`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `books_with_authors` (
   `isbn` VARCHAR(255) NOT NULL,
-  `author_id` INT NOT NULL,
+  `author_id` int NOT NULL,
   PRIMARY KEY (`isbn`,`author_id`),
    FOREIGN KEY (`author_id`) REFERENCES `authors` (`author_id`),
-  FOREIGN KEY (`isbn`) REFERENCES `book_details` (`isbn`)
+  FOREIGN KEY (`isbn`) REFERENCES `books` (`isbn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -192,14 +192,14 @@ CREATE TABLE book_suggestion(
 --
 
 DROP TABLE IF EXISTS `customers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `customers` (
   `customer_id` int NOT NULL AUTO_INCREMENT,
   `first_name` varchar(40) DEFAULT NULL,
   `last_name` varchar(40) DEFAULT NULL,
   `email` varchar(70) unique NOT NULL,
-  `password` varchar(40) DEFAULT NULL,
+  `password` varchar(300) DEFAULT NULL,
+  `salt`VARCHAR(20) DEFAULT NULL,
   PRIMARY KEY (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -213,6 +213,7 @@ LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
 --
 -- Table structure for table `employees`
 --
@@ -225,8 +226,9 @@ CREATE TABLE `employees` (
   `first_name` varchar(40) NOT NULL,
   `last_name` varchar(40) NOT NULL,
   `email` varchar(70) NOT NULL,
-  `password` varchar(40) DEFAULT NULL,
-  `role`     varchar(55),
+  `password` varchar(300) DEFAULT NULL,
+   `salt`VARCHAR(20) DEFAULT NULL,
+  `role` varchar(55),
   PRIMARY KEY (`employee_id`),
   UNIQUE KEY `employee_id` (`employee_id`),
   UNIQUE KEY `email` (`email`)
@@ -298,8 +300,8 @@ DROP TABLE IF EXISTS `loans`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `loans` (
-  `book_id` INT NOT NULL,
-  `customer_id` INT NOT NULL,
+  `book_id` int NOT NULL,
+  `customer_id` int NOT NULL,
   `loan_date` varchar(10) DEFAULT NULL,
   `return_date` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`book_id`,`customer_id`),
@@ -317,18 +319,6 @@ LOCK TABLES `loans` WRITE;
 /*!40000 ALTER TABLE `loans` DISABLE KEYS */;
 /*!40000 ALTER TABLE `loans` ENABLE KEYS */;
 UNLOCK TABLES;
-
-DROP TABLE IF EXISTS `loans_history`;
-CREATE TABLE `loans_history`(
-	`loan_id` INT UNIQUE AUTO_INCREMENT NOT NULL,
-	`book_id` INT NOT NULL,
-	`customer_id` INT NOT NULL,
-	`loan_date` varchar(10) NOT NULL,
-	`return_date` varchar(10) DEFAULT NULL,
-	PRIMARY KEY (`book_id`,`loan_date`),
-	FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
-	FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)
-);
 
 --
 -- Table structure for table `locals`

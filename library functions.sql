@@ -63,9 +63,9 @@ BEGIN
 		-- authors
 		SET @total_authors = LENGTH(authors) - LENGTH(REPLACE(authors, ",", ""))+1;
 		SET @currentCount = 1;
-		
+
 		WHILE @currentCount <= @total_authors DO
-			
+
 			SET @author = SUBSTRING_INDEX(SUBSTRING_INDEX(authors, ',', @currentCount), ',', -1);
 			SELECT `name` FROM `authors` WHERE `name` = @author INTO @exists;
 			IF(@exists IS NULL) THEN
@@ -78,9 +78,9 @@ BEGIN
 		-- genres
 		SET @total_genres = LENGTH(genres) - LENGTH(REPLACE(genres, ",", ""))+1;
 		SET @currentCount = 1;
-		
-		WHILE @currentCount <= @total_genres DO 
-			
+
+		WHILE @currentCount <= @total_genres DO
+
 			SET @genre = SUBSTRING_INDEX(SUBSTRING_INDEX(genres, ',', @currentCount), ',', -1);
 			SELECT name FROM genre WHERE name = @genre INTO @exists;
 			IF(@exists IS NULL) THEN
@@ -105,7 +105,7 @@ CREATE PROCEDURE `add_copies`(isbn VARCHAR(20), library_id INT, amount INT, OUT 
 BEGIN
 	DECLARE `rollback` BOOL DEFAULT 0;
 	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;
-    
+
 	START TRANSACTION;
 		SET @start = 0;
 		WHILE @start < amount DO
@@ -212,39 +212,104 @@ END //
 
 CALL get_loaned_books_with_isbn("1251253223423");
 
+-- produces for customer
 DROP PROCEDURE IF EXISTS `create_customer`;
 DELIMITER //
-CREATE PROCEDURE `create_customer`(first_name VARCHAR(40), last_name VARCHAR(40), email VARCHAR(70), `password` VARCHAR(40), OUT succeed INT)
+
+CREATE DEFINER=root@localhost PROCEDURE create_customer(in first_name VARCHAR(40), in last_name VARCHAR(40), in username VARCHAR(70), in password VARCHAR(300), out succeed int)
 BEGIN
-	START TRANSACTION;
-		SET @customer_exists = 0;
-		SELECT COUNT(*) FROM customers c WHERE c.`email` = email INTO @customer_exists;
-		IF (@customer_exists > 0) THEN
-			SET succeed = 0;
-		ELSE
-			SET succeed = 1;
-			INSERT INTO customers (`first_name`,`last_name`,`email`,`password`) VALUES(first_name, last_name, email, `password`);
-		END IF;
-    COMMIT;
+
+DECLARE customer_exists VARCHAR(70) DEFAULT (SELECT email FROM customers WHERE email = username);
+
+SET @salt=SUBSTRING(MD5(RAND()), -10);
+
+IF customer_exists IS NULL THEN
+
+INSERT INTO customers (first_name, last_name, email, password, salt) VALUES (first_name, last_name, username, concat(sha2(password, 224), @salt), @salt);
+
+SET succeed = 1;
+
+ELSE
+SET succeed = 0;
+END IF;
+
 END //
 
+DROP PROCEDURE IF EXISTS `authenticator`;
+DELIMITER //
+CREATE DEFINER=root@localhost PROCEDURE authenticator(in username varchar(70), in userpassword varchar(300), out succeed int)
+BEGIN
+
+DECLARE customer_exists VARCHAR(20) DEFAULT (SELECT salt FROM customers WHERE email = username);
+
+IF customer_exists IS NULL THEN
+
+SET succeed = 0;
+
+END IF;
+
+SET @salt = (SELECT salt FROM customers WHERE email = username);
+SET @pass_the_hash = concat(sha2(userpassword, 224), @salt);
+SET @pValue = (SELECT COUNT("UserName") FROM customers WHERE email = username AND password = @pass_the_hash);
+
+IF @pValue = 1 THEN SET succeed = 1;
+
+ELSE
+SET succeed = 0;
+END IF;
+
+END //
 DROP PROCEDURE IF EXISTS `create_employee`;
 DELIMITER //
-CREATE PROCEDURE `create_employee`(first_name VARCHAR(40), last_name VARCHAR(40), email VARCHAR(70), `password` VARCHAR(40), `role` VARCHAR(55), OUT succeed INT)
+
+CREATE DEFINER=root@localhost PROCEDURE create_employee(in first_name VARCHAR(40), in last_name VARCHAR(40), in username VARCHAR(70), in password VARCHAR(300), role VARCHAR(55), out succeed int)
 BEGIN
-	START TRANSACTION;
-		SET @employee_exists = 0;
-		SELECT COUNT(*) FROM employees e WHERE e.`email` = email INTO @employee_exists;
-		IF (@employee_exists > 0) THEN
-			SET succeed = 0;
-		ELSE
-			SET succeed = 1;
-			INSERT INTO employees (`first_name`,`last_name`,`email`,`password`,`role`) VALUES(first_name, last_name, email, `password`, `role`);
-		END IF;
-    COMMIT;
+
+DECLARE employee_exists VARCHAR(70) DEFAULT (SELECT email FROM employees WHERE email = username);
+
+SET @salt=SUBSTRING(MD5(RAND()), -10);
+
+IF employee_exists IS NULL THEN
+
+INSERT INTO employees (first_name, last_name, email, password, salt,role) VALUES (first_name, last_name, username, concat(sha2(password, 224), @salt), @salt,role);
+
+SET succeed = 1;
+
+ELSE
+SET succeed = 0;
+END IF;
+
 END //
 
-    
+
+DROP PROCEDURE IF EXISTS `employee_authenticator`;
+DELIMITER //
+
+CREATE DEFINER=root@localhost PROCEDURE employee_authenticator(in username varchar(70), in userpassword varchar(300), out succeed int)
+BEGIN
+
+DECLARE employee_exists VARCHAR(20) DEFAULT (SELECT salt FROM employees WHERE email = username);
+
+IF employee_exists IS NULL THEN
+
+SET succeed = 0;
+
+END IF;
+
+SET @salt = (SELECT salt FROM employees WHERE email = username);
+SET @pass_the_hash = concat(sha2(userpassword, 224), @salt);
+SET @pValue = (SELECT COUNT("UserName") FROM employees WHERE email = username AND password = @pass_the_hash);
+
+IF @pValue = 1 THEN SET succeed = 1;
+
+ELSE
+SET succeed = 0;
+END IF;
+
+END //
+
+
+    --  group_rooms
     DROP PROCEDURE IF EXISTS `create_customers_with_group_rooms`;
 DELIMITER //
 CREATE PROCEDURE `create_customers_with_group_rooms`(time_id INT, customer_id INT ,OUT succeed INT)
@@ -350,8 +415,11 @@ ORDER BY Date;
 */
 END //
 
+USE `library_management_system`;
 DROP procedure IF EXISTS `get_customer_room_bookings`;
+
 DELIMITER $$
+USE `library_management_system`$$
 CREATE PROCEDURE `get_customer_room_bookings` (customer_id_frontend INT)
 BEGIN
 
@@ -363,4 +431,10 @@ r.room_id = g.room_id;
     
 END$$
 
+DELIMITER ;
+
+Select * from loans where str_to_date(return_date,'%Y-%m-%d') between str_to_date('2022-5-02','%Y-%m-%d') and str_to_date('2022-6-02','%Y-%m-%d');
+
+
 CALL get_customer_room_bookings(1);
+
