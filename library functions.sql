@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `loan_book`;
 DELIMITER //
-CREATE PROCEDURE `loan_book` (library_id INT, ISBN VARCHAR(255), customer_id INT, loan_date VARCHAR(10), return_date VARCHAR(10), OUT succeed INT)
+CREATE PROCEDURE `loan_book` (library_id INT, ISBN VARCHAR(255), customer_id INT, loan_date VARCHAR(19), return_date VARCHAR(19), OUT succeed INT)
 BEGIN
 	DECLARE `rollback` BOOL DEFAULT 0;
 	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET `rollback` = 1;

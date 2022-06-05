@@ -302,8 +302,8 @@ DROP TABLE IF EXISTS `loans`;
 CREATE TABLE `loans` (
   `book_id` int NOT NULL,
   `customer_id` int NOT NULL,
-  `loan_date` varchar(10) DEFAULT NULL,
-  `return_date` varchar(10) DEFAULT NULL,
+  `loan_date` varchar(19) DEFAULT NULL,
+  `return_date` varchar(19) DEFAULT NULL,
   PRIMARY KEY (`book_id`,`customer_id`),
   KEY `customer_id` (`customer_id`),
   CONSTRAINT `loans_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
@@ -325,8 +325,8 @@ CREATE TABLE `loans_history`(
 	`loan_id` INT UNIQUE AUTO_INCREMENT NOT NULL,
 	`book_id` INT NOT NULL,
 	`customer_id` INT NOT NULL,
-	`loan_date` varchar(10) NOT NULL,
-	`return_date` varchar(10) DEFAULT NULL,
+	`loan_date` varchar(19) NOT NULL,
+	`return_date` varchar(19) DEFAULT NULL,
 	PRIMARY KEY (`book_id`,`loan_date`),
 	FOREIGN KEY (`book_id`) REFERENCES `books` (`book_id`),
 	FOREIGN KEY (`customer_id`) REFERENCES `customers` (`customer_id`)

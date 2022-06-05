@@ -36,16 +36,6 @@ INSERT INTO `group_rooms` VALUES (2, "Mind", 1, "Ett sketet rum");
 INSERT INTO `group_rooms` VALUES (3, "Discipline", 1, "Ett sketet rum");
 INSERT INTO `group_rooms` VALUES (4, "Nerd", 1, "Ett sketet rum");
 
--- insert new customer
-INSERT INTO `customers` VALUES(4, "Jullis", "sharmuto", "julius.thomsen99@gmail.com", "password");
-INSERT INTO `customers` VALUES(10, "Patrik", "Patrik", "Patrikjo95@gmail.com", "120965aadd");
-INSERT INTO `customers` VALUES(8, "Ruun", "Bile", "sahra.bile@edu.newton.se", "120965aa");
--- loans for customer
-INSERT INTO `loans` VALUES (1, 1, "2022-05-30", "2022-06-04");
-INSERT INTO `loans` VALUES (1, 10, "2022-05-30", "2022-06-02");
-INSERT INTO `loans` VALUES (1, 4, "2022-05-30", "2022-06-02");
-INSERT INTO `loans` VALUES (1, 1, "2022-05-30", "2022-05-31");
-
 
 
 
