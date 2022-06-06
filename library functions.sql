@@ -397,6 +397,25 @@ END //
 
 CALL get_available_group_room_times_by_room_id();
 
+DROP PROCEDURE IF EXISTS `get_booked_group_room_times`;
+DELIMITER //
+CREATE PROCEDURE `get_booked_group_room_times`(room_id INT)
+BEGIN
+	SELECT *,
+    (SELECT customer_id FROM customers_with_group_rooms cwgr WHERE g.`time_id` = cwgr.`time_id`) AS customer_id,
+    (SELECT email FROM customers c, customers_with_group_rooms cwgr WHERE g.`time_id` = cwgr.`time_id` AND c.`customer_id` = cwgr.`customer_id`) AS email
+    FROM `group_room_times` g
+    WHERE
+    g.`room_id` = room_id AND
+    EXISTS(
+		SELECT *
+        FROM `customers_with_group_rooms` c
+        WHERE g.`time_id` = c.`time_id`
+    );
+END //
+
+CALL `get_booked_group_room_times`(1);
+
 DROP PROCEDURE IF EXISTS `get_available_group_rooms`;
 DELIMITER //
 CREATE PROCEDURE `get_available_group_rooms`()
