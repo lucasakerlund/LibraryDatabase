@@ -72,6 +72,9 @@ BEGIN
 				INSERT INTO `authors`(`name`) VALUES(@author);
                 SET @author_id = last_insert_id();
                 INSERT INTO `books_with_authors` VALUES (isbn, @author_id);
+			ELSE 
+                SELECT author_id FROM authors WHERE `name` = @author INTO @author_id;
+                INSERT INTO `books_with_authors` VALUES (isbn, @author_id);
 			END IF;
 			SET @currentCount = @currentCount + 1;
 		END WHILE;
@@ -87,6 +90,9 @@ BEGIN
 				INSERT INTO genre(name) VALUES(@genre);
                 SET @genre_id = last_insert_id();
                 INSERT INTO books_with_genre VALUES(isbn, @genre_id);
+			ELSE 
+                SELECT genre_id FROM genre WHERE `name` = @genre INTO @genre_id;
+                INSERT INTO `books_with_genre` VALUES (isbn, @genre_id);
 			END IF;
 			SET @currentCount = @currentCount + 1;
 		END WHILE;
@@ -98,6 +104,9 @@ BEGIN
         SET FOREIGN_KEY_CHECKS=1;
     COMMIT;
 END //
+
+-- CALL `add_book`("tialsfdaew", "efesf", "Igor", "test", "qwesdfdre", "2001-01-01", 1, "language", "https://cached-images.bonnier.news/gcs/bilder/dn-mly/7898e083-7b44-428c-a85f-776615acbbbc.jpeg", @succeed);
+-- SELECT @succeed;
 
 DROP PROCEDURE IF EXISTS `add_copies`;
 DELIMITER //

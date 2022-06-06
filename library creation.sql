@@ -183,7 +183,7 @@ CREATE TABLE book_suggestion(
   `book_suggestion_id` int NOT NULL AUTO_INCREMENT,
   `isbn` VARCHAR(255) DEFAULT NULL,
   `title` VARCHAR(40) NOT NULL,
-  `author` VARCHAR(40) NOT NULL,
+  `authors` VARCHAR(40) NOT NULL,
   `language` VARCHAR(30) DEFAULT NULL,
   PRIMARY KEY (`book_suggestion_id`));
 
